@@ -5,13 +5,13 @@ properties(
             [   
                 // RDS Deployment Parameters
                 separator(name: "swms-rds-deployment", sectionHeader: "SWMS RDS Deployment"),
-                choice(name: 'TERRAFORM_COMMAND', choices: ['create','destroy'], description: 'Type of Terraform command that needs to be run')
-                string(name: 'PREFIX', defaultValue: 'lx', description: 'Host name prefix')
-                string(name: 'SUFFIX', defaultValue: 'q11', description: 'Host name suffix')
-                string(name: 'OPCO_NUMBER', defaultValue: '739', description: 'Opco Number')
-                string(name: 'DB_SNAPSHOT_IDENTIFIER', defaultValue: 'lx739q9-db-final-snapshot', description: 'DB Snapshot identifier')
-                string(name: 'DB_INSTANCE_TYPE', defaultValue: 'db.t3.medium', description: 'DB Instance Type')
-                string(name: 'TIMEZONE', defaultValue: 'America/Chicago', description: 'TimeZone')
+                choice(name: 'TERRAFORM_COMMAND', choices: ['create','destroy'], description: 'Type of Terraform command that needs to be run'),
+                string(name: 'PREFIX', defaultValue: 'lx', description: 'Host name prefix'),
+                string(name: 'SUFFIX', defaultValue: 'q11', description: 'Host name suffix'),
+                string(name: 'OPCO_NUMBER', defaultValue: '739', description: 'Opco Number'),
+                string(name: 'DB_SNAPSHOT_IDENTIFIER', defaultValue: 'lx739q9-db-final-snapshot', description: 'DB Snapshot identifier'),
+                string(name: 'DB_INSTANCE_TYPE', defaultValue: 'db.t3.medium', description: 'DB Instance Type'),
+                string(name: 'TIMEZONE', defaultValue: 'America/Chicago', description: 'TimeZone'),
                 
                 // Cheff Configuration Parameters
                 separator(name: "swms-infra-aws-chef", sectionHeader: "SWMS AWS Chef configurations"),
