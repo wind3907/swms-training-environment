@@ -88,7 +88,7 @@ properties(
                     ]
                 ],
                 string(name: 'dba_masterfile_names', description: 'Comma seperated names of the Privileged master files to apply to the current database. Will not run if left blank. Ran before the master_file', defaultValue: '', trim: true),
-                string(name: 'master_file_retry_count', description: 'Amount of attempts to apply the master file. This is setup to handle circular dependencies by running the same master file multiple times.', defaultValue: '3', trim: true)
+                string(name: 'master_file_retry_count', description: 'Amount of attempts to apply the master file. This is setup to handle circular dependencies by running the same master file multiple times.', defaultValue: '3', trim: true),
                 
                 // Data Migration Parameters
                 separator(name: "data-migration", sectionHeader: "Data Migration Parameters"),
