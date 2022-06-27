@@ -4,7 +4,7 @@ properties(
         parameters(
             [   
                 // RDS Deployment Parameters
-                separator(name: "swms-rds-deployment", sectionHeader: "SWMS RDS Deployment"),
+                separator(name: "swms-rds-deployment", sectionHeader: "SWMS RDS Deployment Parameters"),
                 choice(name: 'TERRAFORM_COMMAND', choices: ['create','destroy'], description: 'Type of Terraform command that needs to be run'),
                 string(name: 'PREFIX', defaultValue: 'lx', description: 'Host name prefix'),
                 string(name: 'SUFFIX', defaultValue: 'q11', description: 'Host name suffix'),
@@ -14,7 +14,7 @@ properties(
                 string(name: 'TIMEZONE', defaultValue: 'America/Chicago', description: 'TimeZone'),
                 
                 // Cheff Configuration Parameters
-                separator(name: "swms-infra-aws-chef", sectionHeader: "SWMS AWS Chef configurations"),
+                separator(name: "swms-infra-aws-chef", sectionHeader: "SWMS AWS Chef Configurations Parameters"),
                 string(name: 'opco_num', description: 'The 3 digit OPCO number',  trim: true),
                 string(name: 'opco_desc', description: 'The short description of this opco instance',  trim: true),
                 string(name: 'opco_type', description: 'The short suffix of the server name that describes the instance environment type',  trim: true),
@@ -25,7 +25,7 @@ properties(
 
                 
                 // SWMS Opco Deployment Parameters
-                separator(name: "swms-opco-deployment", sectionHeader: "SWMS Opco Deployment"),
+                separator(name: "swms-opco-deployment", sectionHeader: "SWMS Opco Deployment Parameters"),
                 string(name: 'target_server_name', description: "The target server to deploy to. If the domain is not 'na.sysco.net' use the full address", defaultValue: ""),
                 [
                     name: 'artifact_s3_bucket',
