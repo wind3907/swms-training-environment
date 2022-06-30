@@ -3,30 +3,21 @@ properties(
         buildDiscarder(logRotator(numToKeepStr: '20')),
         parameters(
             [   
-                // RDS Deployment Parameters
-                separator(name: "swms-rds-deployment", sectionHeader: "SWMS RDS Deployment Parameters"),
-                choice(name: 'TERRAFORM_COMMAND', choices: ['create','destroy'], description: 'Type of Terraform command that needs to be run'),
+                // Common Parameters
+                separator(name: "common-parameters", sectionHeader: "Common Parameters"),
                 string(name: 'PREFIX', defaultValue: 'lx', description: 'Host name prefix'),
-                string(name: 'SUFFIX', defaultValue: 'q11', description: 'Host name suffix'),
                 string(name: 'OPCO_NUMBER', defaultValue: '739', description: 'Opco Number'),
+                string(name: 'SUFFIX', defaultValue: 'q11', description: 'Host name suffix'),
+
+                // Terraform & Cheff Parameters
+                separator(name: "terraform-chef-parameters", sectionHeader: "Terraform & Cheff Paramaters"),
                 string(name: 'DB_SNAPSHOT_IDENTIFIER', defaultValue: 'lx739q9-db-final-snapshot', description: 'DB Snapshot identifier'),
                 string(name: 'DB_INSTANCE_TYPE', defaultValue: 'db.t3.medium', description: 'DB Instance Type'),
                 string(name: 'TIMEZONE', defaultValue: 'America/Chicago', description: 'TimeZone'),
-                
-                // Cheff Configuration Parameters
-                separator(name: "swms-infra-aws-chef", sectionHeader: "SWMS AWS Chef Configurations Parameters"),
-                string(name: 'opco_num', description: 'The 3 digit OPCO number',  trim: true),
                 string(name: 'opco_desc', description: 'The short description of this opco instance',  trim: true),
-                string(name: 'opco_type', description: 'The short suffix of the server name that describes the instance environment type',  trim: true),
-                string(name: 'opco_tz', description: 'The timezone the instance is to be set to',  trim: true),
-                string(name: 'rds_url', description: 'The the FQDN url for the RDS instance attached to this instance',  trim: true),
-                string(name: 'inst_type', description: 'The type of ec2 instance to launch',  trim: true),
-                choice(name: "kitchen_cmd", choices: ['create', 'converge', 'destroy']),
 
-                
                 // SWMS Opco Deployment Parameters
                 separator(name: "swms-opco-deployment", sectionHeader: "SWMS Opco Deployment Parameters"),
-                string(name: 'target_server_name', description: "The target server to deploy to. If the domain is not 'na.sysco.net' use the full address", defaultValue: ""),
                 [
                     name: 'artifact_s3_bucket',
                     description: 'The build\'s targeted platform',
@@ -93,9 +84,6 @@ properties(
                 // Data Migration Parameters
                 separator(name: "data-migration", sectionHeader: "Data Migration Parameters"),
                 string(name: 'SOURCE_DB', defaultValue: 'rsxxxe', description: 'Source Database. eg: rs040e'),
-                string(name: 'TARGET_DB', defaultValue: 'lx###trn', description: 'Target Database. eg: lx036trn'),
-                string(name: 'ROOT_PW', defaultValue: 'SwmsRoot123', description: 'Root Password'),
-                string(name: 'TARGET_SERVER', defaultValue: 'lx###trn', description: 'Host ec2 instance. eg: lx036trn')
             ]
         )
     ]
@@ -103,71 +91,119 @@ properties(
 pipeline {
     agent { label 'master' }
     environment {
-        SSH_KEY = credentials('/swms/jenkins/swms-universal-build/svc_swmsci_000/key')
         S3_ACCESS_ARN="arn:aws:iam::546397704060:role/ec2_s3_role";
-        AWS_ROLE_SESSION_NAME="swms-data-migration";
-        RDS_INSTANCE="${params.TARGET_SERVER}-db"
     }
     stages {
         stage('Verifying parameters') {
             steps {
                 echo "Section: Verifying parameters"
-                // sh """
-                //     echo "Source DB: ${params.SOURCE_DB}"
-                //     echo "Target DB: ${params.TARGET_DB}"
-                //     if [ "`echo ${params.SOURCE_DB} | cut -c6`" = "e" ]; then
-                //     echo Good This is E box ${params.SOURCE_DB}
-                //     else
-                //     echo Error: Please use rsxxxe
-                //     exit
-                //     fi 
-                // """
+                sh """
+                    echo "Source DB: ${params.SOURCE_DB}"
+                    echo "Target DB: ${params.TARGET_DB}"
+                    if [ "`echo ${params.SOURCE_DB} | cut -c6`" = "e" ]; then
+                    echo Good This is E box ${params.SOURCE_DB}
+                    else
+                    echo Error: Please use rsxxxe
+                    exit
+                    fi 
+                """
             }
         }
-        
-        // stage("Trigger deployment") {
-        //     steps {
-        //         echo "Section: Trigger deployment"
-        //         script {
-        //             try {
-        //                 build job: "swms-opco-deployment-without-healthcheck", parameters: [
-        //                     string(name: 'target_server_name', value: "${params.TARGET_SERVER}.swms-np.us-east-1.aws.sysco.net"),
-        //                     string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
-        //                     string(name: 'platform', value: "${params.platform}"),
-        //                     string(name: 'artifact_version', value: "${params.artifact_version}"),
-        //                     string(name: 'artifact_name', value: "${params.artifact_name}"),
-        //                     string(name: 'dba_masterfile_names', value: "${params.dba_masterfile_names}"),
-        //                     string(name: 'master_file_retry_count', value: "${params.master_file_retry_count}")
-        //                 ]
-        //                 echo "Deployment Successful!"
-        //             } catch (e) {
-        //                 echo "Deployment Failed!"
-        //                 throw e
-        //             }
-        //         }
-        //     }
-        // }
+        stage("AWS RDS Deploymnet") {
+            steps {
+                echo "Section: AWS RDS Deploymnet"
+                script {
+                    try {
+                        build job: "swms-rds-deployment", parameters: [
+                            string(name: 'TERRAFORM_COMMAND', value: "create")
+                            string(name: 'PREFIX', value: "${params.PREFIX}")
+                            string(name: 'SUFFIX', value: "${params.SUFFIX}")
+                            string(name: 'OPCO_NUMBER', value: "${params.OPCO_NUMBER}")
+                            string(name: 'DB_SNAPSHOT_IDENTIFIER', value: "${params.DB_SNAPSHOT_IDENTIFIER}")
+                            string(name: 'DB_INSTANCE_TYPE', value: "${params.DB_INSTANCE_TYPE}")
+                            string(name: 'TIMEZONE', value: "${params.TIMEZONE}")
+                        ]
+                        echo "EC2 & RDS Intances provsioning successfull!"
+                    } catch (e) {
+                        echo "EC2 & RDS Intances provsioning failed!"
+                        throw e
+                    }
+                }
+            }
+        }
+        stage("Cheff Configuration") {
+            steps {
+                echo "Section: Cheff Configuration"
+                script {
+                    try {
+                        build job: "swms-infra-aws-chef", parameters: [
+                            string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
+                            string(name: 'opco_desc', value: "${params.opco_desc}"),
+                            string(name: 'opco_type', value: "${params.SUFFIX}"),
+                            string(name: 'opco_tz', value: "${params.TIMEZONE}"),
+                            string(name: 'rds_url', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"),
+                            string(name: 'inst_type', value: "t3.medium"),
+                            choice(name: "kitchen_cmd", value: "converge"),
+                        ]
+                        echo "Cheff configuration Successful!"
+                    } catch (e) {
+                        echo "Cheff configuration Failed!"
+                        throw e
+                    }
+                }
+            }
+        }
+        stage("SWMS Opco Deploymnet") {
+            steps {
+                echo "Section: SWMS Opco Deploymnet"
+                script {
+                    try {
+                        build job: "swms-opco-deployment-without-healthcheck", parameters: [
+                            string(name: 'target_server_name', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"),
+                            string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
+                            string(name: 'platform', value: "${params.platform}"),
+                            string(name: 'artifact_version', value: "${params.artifact_version}"),
+                            string(name: 'artifact_name', value: "${params.artifact_name}"),
+                            string(name: 'dba_masterfile_names', value: "${params.dba_masterfile_names}"),
+                            string(name: 'master_file_retry_count', value: "${params.master_file_retry_count}")
+                        ]
+                        echo "SWMS Opco Deployment Successful!"
+                    } catch (e) {
+                        echo "SWMS Opco Deployment Failed!"
+                        throw e
+                    }
+                }
+            }
+        }
+        stage("SWMS Data Migration") {
+            steps {
+                echo "Section: SWMS Data Migration"
+                script {
+                    try {
+                        build job: "swms-db-migrate-AIX-RDS", parameters: [
+                            string(name: 'SOURCE_DB', value: "${params.SOURCE_DB}"),
+                            string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
+                            string(name: 'ROOT_PW', value: ""),
+                            string(name: 'TARGET_SERVER', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
+                        ]
+                        echo "Data Migration Successful!"
+                    } catch (e) {
+                        echo "Data Migration Failed!"
+                        throw e
+                    }
+                }
+            }
+        }   
     }
     post {
-        // always {
-        //     script {
-        //         logParser projectRulePath: "${WORKSPACE}/log_parse_rules" , useProjectRule: true
-        //         sh """
-        //             ssh -i $SSH_KEY ${SSH_KEY_USR}@rs1060b1.na.sysco.net "
-        //             . ~/.profile;
-        //             beoracle_ci rm -r /tempfs/11gtords/
-        //             "
-        //         """
-        //     }
-        // }
         success {
             script {
-                echo 'Data migration from Oracle 11 AIX to Oracle 19 RDS is successful!'
+                echo 'Environment provisioning is successful!'
             }
         }
         failure {
             script {
-                echo 'Data migration from Oracle 11 AIX to Oracle 19 RDS is failed!'
+                echo 'Environment provisioning is failed!'
             }
         }
     }
