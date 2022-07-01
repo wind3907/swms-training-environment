@@ -115,12 +115,12 @@ pipeline {
                 script {
                     try {
                         build job: "swms-rds-deployment", parameters: [
-                            string(name: 'TERRAFORM_COMMAND', value: "create")
-                            string(name: 'PREFIX', value: "${params.PREFIX}")
-                            string(name: 'SUFFIX', value: "${params.SUFFIX}")
-                            string(name: 'OPCO_NUMBER', value: "${params.OPCO_NUMBER}")
-                            string(name: 'DB_SNAPSHOT_IDENTIFIER', value: "${params.DB_SNAPSHOT_IDENTIFIER}")
-                            string(name: 'DB_INSTANCE_TYPE', value: "${params.DB_INSTANCE_TYPE}")
+                            string(name: 'TERRAFORM_COMMAND', value: "create"),
+                            string(name: 'PREFIX', value: "${params.PREFIX}"),
+                            string(name: 'SUFFIX', value: "${params.SUFFIX}"),
+                            string(name: 'OPCO_NUMBER', value: "${params.OPCO_NUMBER}"),
+                            string(name: 'DB_SNAPSHOT_IDENTIFIER', value: "${params.DB_SNAPSHOT_IDENTIFIER}"),
+                            string(name: 'DB_INSTANCE_TYPE', value: "${params.DB_INSTANCE_TYPE}"),
                             string(name: 'TIMEZONE', value: "${params.TIMEZONE}")
                         ]
                         echo "EC2 & RDS Intances provsioning successfull!"
@@ -143,7 +143,7 @@ pipeline {
                             string(name: 'opco_tz', value: "${params.TIMEZONE}"),
                             string(name: 'rds_url', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"),
                             string(name: 'inst_type', value: "t3.medium"),
-                            choice(name: "kitchen_cmd", value: "converge"),
+                            string(name: "kitchen_cmd", value: "converge")
                         ]
                         echo "Cheff configuration Successful!"
                     } catch (e) {
