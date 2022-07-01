@@ -114,15 +114,23 @@ pipeline {
                 echo "Section: AWS RDS Deploymnet"
                 script {
                     try {
-                        build job: "swms-rds-deployment", parameters: [
-                            string(name: 'TERRAFORM_COMMAND', value: "create")
-                            string(name: 'PREFIX', value: "${params.PREFIX}")
-                            string(name: 'SUFFIX', value: "${params.SUFFIX}")
-                            string(name: 'OPCO_NUMBER', value: "${params.OPCO_NUMBER}")
-                            string(name: 'DB_SNAPSHOT_IDENTIFIER', value: "${params.DB_SNAPSHOT_IDENTIFIER}")
-                            string(name: 'DB_INSTANCE_TYPE', value: "${params.DB_INSTANCE_TYPE}")
-                            string(name: 'TIMEZONE', value: "${params.TIMEZONE}")
-                        ]
+                        echo "create"
+                        echo "${params.PREFIX}"
+                        echo "${params.SUFFIX}"
+                        echo "${params.OPCO_NUMBER}"
+                        echo "${params.DB_SNAPSHOT_IDENTIFIER}"
+                        echo "${params.DB_INSTANCE_TYPE}"
+                        echo "${params.TIMEZONE}"
+
+                        // build job: "swms-rds-deployment", parameters: [
+                        //     string(name: 'TERRAFORM_COMMAND', value: "create")
+                        //     string(name: 'PREFIX', value: "${params.PREFIX}")
+                        //     string(name: 'SUFFIX', value: "${params.SUFFIX}")
+                        //     string(name: 'OPCO_NUMBER', value: "${params.OPCO_NUMBER}")
+                        //     string(name: 'DB_SNAPSHOT_IDENTIFIER', value: "${params.DB_SNAPSHOT_IDENTIFIER}")
+                        //     string(name: 'DB_INSTANCE_TYPE', value: "${params.DB_INSTANCE_TYPE}")
+                        //     string(name: 'TIMEZONE', value: "${params.TIMEZONE}")
+                        // ]
                         echo "EC2 & RDS Intances provsioning successfull!"
                     } catch (e) {
                         echo "EC2 & RDS Intances provsioning failed!"
@@ -136,15 +144,22 @@ pipeline {
                 echo "Section: Cheff Configuration"
                 script {
                     try {
-                        build job: "swms-infra-aws-chef", parameters: [
-                            string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
-                            string(name: 'opco_desc', value: "${params.opco_desc}"),
-                            string(name: 'opco_type', value: "${params.SUFFIX}"),
-                            string(name: 'opco_tz', value: "${params.TIMEZONE}"),
-                            string(name: 'rds_url', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"),
-                            string(name: 'inst_type', value: "t3.medium"),
-                            choice(name: "kitchen_cmd", value: "converge"),
-                        ]
+                        echo "${params.OPCO_NUMBER}"
+                        echo "${params.opco_desc}"
+                        echo "${params.SUFFIX}"
+                        echo "${params.TIMEZONE}"
+                        echo "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"
+                        echo "${params.t3.medium}"
+                        echo "converge"
+                        // build job: "swms-infra-aws-chef", parameters: [
+                        //     string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
+                        //     string(name: 'opco_desc', value: "${params.opco_desc}"),
+                        //     string(name: 'opco_type', value: "${params.SUFFIX}"),
+                        //     string(name: 'opco_tz', value: "${params.TIMEZONE}"),
+                        //     string(name: 'rds_url', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"),
+                        //     string(name: 'inst_type', value: "t3.medium"),
+                        //     choice(name: "kitchen_cmd", value: "converge"),
+                        // ]
                         echo "Cheff configuration Successful!"
                     } catch (e) {
                         echo "Cheff configuration Failed!"
@@ -158,15 +173,22 @@ pipeline {
                 echo "Section: SWMS Opco Deploymnet"
                 script {
                     try {
-                        build job: "swms-opco-deployment-without-healthcheck", parameters: [
-                            string(name: 'target_server_name', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"),
-                            string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
-                            string(name: 'platform', value: "${params.platform}"),
-                            string(name: 'artifact_version', value: "${params.artifact_version}"),
-                            string(name: 'artifact_name', value: "${params.artifact_name}"),
-                            string(name: 'dba_masterfile_names', value: "${params.dba_masterfile_names}"),
-                            string(name: 'master_file_retry_count', value: "${params.master_file_retry_count}")
-                        ]
+                        echo "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"
+                        echo "${params.artifact_s3_bucket}"
+                        echo "${params.platform}"
+                        echo "${params.artifact_version}"
+                        echo "${params.artifact_name}"
+                        echo "${params.dba_masterfile_names}"
+                        echo "${params.master_file_retry_count}"
+                        // build job: "swms-opco-deployment-without-healthcheck", parameters: [
+                        //     string(name: 'target_server_name', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"),
+                        //     string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
+                        //     string(name: 'platform', value: "${params.platform}"),
+                        //     string(name: 'artifact_version', value: "${params.artifact_version}"),
+                        //     string(name: 'artifact_name', value: "${params.artifact_name}"),
+                        //     string(name: 'dba_masterfile_names', value: "${params.dba_masterfile_names}"),
+                        //     string(name: 'master_file_retry_count', value: "${params.master_file_retry_count}")
+                        // ]
                         echo "SWMS Opco Deployment Successful!"
                     } catch (e) {
                         echo "SWMS Opco Deployment Failed!"
@@ -180,12 +202,16 @@ pipeline {
                 echo "Section: SWMS Data Migration"
                 script {
                     try {
-                        build job: "swms-db-migrate-AIX-RDS", parameters: [
-                            string(name: 'SOURCE_DB', value: "${params.SOURCE_DB}"),
-                            string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
-                            string(name: 'ROOT_PW', value: ""),
-                            string(name: 'TARGET_SERVER', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
-                        ]
+                        echo "${params.SOURCE_DB}"
+                        echo "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"
+                        echo ""
+                        echo "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"
+                        // build job: "swms-db-migrate-AIX-RDS", parameters: [
+                        //     string(name: 'SOURCE_DB', value: "${params.SOURCE_DB}"),
+                        //     string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
+                        //     string(name: 'ROOT_PW', value: ""),
+                        //     string(name: 'TARGET_SERVER', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
+                        // ]
                         echo "Data Migration Successful!"
                     } catch (e) {
                         echo "Data Migration Failed!"
