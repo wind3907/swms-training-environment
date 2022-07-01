@@ -149,7 +149,7 @@ pipeline {
                         echo "${params.SUFFIX}"
                         echo "${params.TIMEZONE}"
                         echo "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"
-                        echo "${params.t3.medium}"
+                        echo "${t3.medium}"
                         echo "converge"
                         // build job: "swms-infra-aws-chef", parameters: [
                         //     string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
