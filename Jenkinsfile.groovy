@@ -114,7 +114,7 @@ pipeline {
                 echo "Section: AWS RDS Deploymnet"
                 script {
                     try {
-                        build job: "swms-rds-deployment", parameters: [
+                        build job: "swms-rds-deployment-terraform", parameters: [
                             string(name: 'TERRAFORM_COMMAND', value: "create"),
                             string(name: 'PREFIX', value: "${params.PREFIX}"),
                             string(name: 'SUFFIX', value: "${params.SUFFIX}"),
