@@ -136,7 +136,7 @@ pipeline {
                 echo "Section: Cheff Configuration"
                 script {
                     try {
-                        build job: "swms-infra-aws-chef", parameters: [
+                        build job: "ashblk-swms-infra-aws-chef", parameters: [
                             string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
                             string(name: 'opco_desc', value: "${params.opco_desc}"),
                             string(name: 'opco_type', value: "${params.SUFFIX}"),
@@ -158,7 +158,7 @@ pipeline {
                 echo "Section: SWMS Opco Deploymnet"
                 script {
                     try {
-                        build job: "swms-opco-deployment-without-healthcheck", parameters: [
+                        build job: "swms-opco-deployment", parameters: [
                             string(name: 'target_server_name', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"),
                             string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
                             string(name: 'platform', value: "${params.platform}"),
@@ -185,7 +185,6 @@ pipeline {
                             string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
                             string(name: 'ROOT_PW', value: ""),
                             string(name: 'TARGET_SERVER', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
-                            string(name: 'target_server_name', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}.swms-np.us-east-1.aws.sysco.net"),
                             string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
                             string(name: 'platform', value: "${params.platform}"),
                             string(name: 'artifact_version', value: "${params.artifact_version}"),
