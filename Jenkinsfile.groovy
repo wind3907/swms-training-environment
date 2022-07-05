@@ -200,7 +200,7 @@ pipeline {
                     try {
                         build job: "swms-db-migrate-AIX-RDS-test", parameters: [
                             string(name: 'SOURCE_DB', value: "${params.SOURCE_DB}"),
-                            string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
+                            string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
                             string(name: 'ROOT_PW', value: ""),
                             string(name: 'TARGET_SERVER', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"),
                             string(name: 'artifact_s3_bucket', value: "${params.artifact_s3_bucket}"),
