@@ -131,9 +131,27 @@ pipeline {
                 }
             }
         }
-        stage("Cheff Configuration") {
+        stage("Cheff Configuration create") {
             steps {
-                echo "Section: Cheff Configuration"
+                echo "Section: Cheff Configuration create"
+                script {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                        build job: "ashblk-swms-infra-aws-chef", parameters: [
+                            string(name: 'opco_num', value: "${params.OPCO_NUMBER}"),
+                            string(name: 'opco_desc', value: "${params.opco_desc}"),
+                            string(name: 'opco_type', value: "${params.SUFFIX}"),
+                            string(name: 'opco_tz', value: "${params.TIMEZONE}"),
+                            string(name: 'rds_url', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}-db.swms-np.us-east-1.aws.sysco.net"),
+                            string(name: 'inst_type', value: "t3.medium"),
+                            string(name: "kitchen_cmd", value: "converge")
+                        ]
+                    }
+                }
+            }
+        }
+        stage("Cheff Configuration converge") {
+            steps {
+                echo "Section: Cheff Configuration converge"
                 script {
                     try {
                         build job: "ashblk-swms-infra-aws-chef", parameters: [
@@ -180,7 +198,7 @@ pipeline {
                 echo "Section: SWMS Data Migration"
                 script {
                     try {
-                        build job: "swms-db-migrate-AIX-RDS", parameters: [
+                        build job: "swms-db-migrate-AIX-RDS-test", parameters: [
                             string(name: 'SOURCE_DB', value: "${params.SOURCE_DB}"),
                             string(name: 'TARGET_DB', value: "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}_db"),
                             string(name: 'ROOT_PW', value: ""),
@@ -199,7 +217,17 @@ pipeline {
                     }
                 }
             }
-        }   
+        }  
+        stage("PMC Configuration") {
+            steps {
+                echo "Section: PMC Configuration"
+                script {
+                    env.INSTANCE = "${params.PREFIX}${params.OPCO_NUMBER}${params.SUFFIX}"
+                    def INSTANCE_ID = sh(script: "aws ec2 describe-instances --filters 'Name=tag:Name,Values=$INSTANCE' --query Reservations[*].Instances[*].[InstanceId] --output text --region us-east-1", returnStdout: true).trim()
+                    sh "aws ec2 delete-tags --resources ${INSTANCE_ID} --tags Key='Automation:PMC',Value='Always On' --region us-east-1"
+                }
+            }
+        }
     }
     post {
         success {
